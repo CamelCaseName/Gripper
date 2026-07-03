@@ -348,7 +348,7 @@ Transform:
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 1.201, y: 4.543, z: -2.079}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -432,7 +432,7 @@ Transform:
   m_GameObject: {fileID: 474549282}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.854, y: 3.38, z: 0.793}
+  m_LocalPosition: {x: 0.86, y: 3.38, z: -3.18}
   m_LocalScale: {x: 0.68, y: 0.68, z: 0.68}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -577,13 +577,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 946497914}
   VelocityThreshhold: 0.03
-  IndentScale: 0.01
+  IndentScale: 0.2
   MaxIndent: 0.05
-  IndentRecoveryTime: 2
-  RecoveryDelayTime: 1
-  JellyRadius: 0.1
-  JellyRecoveryTime: 0.7
-  JellyStrength: 1.1
+  IndentRecoveryTime: 1
+  RecoveryDelayTime: 0.05
+  JellyRadius: 0.3
+  JellyRecoveryTime: 1
+  JellyStrength: 0.7
 --- !u!23 &946497914
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -650,8 +650,8 @@ Transform:
   m_GameObject: {fileID: 946497912}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -3.2, y: 0.67, z: -5.91}
-  m_LocalScale: {x: 100, y: 250, z: 100}
+  m_LocalPosition: {x: 0.73, y: 0.67, z: 3.36}
+  m_LocalScale: {x: 200, y: 200, z: 200}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -767,7 +767,7 @@ Transform:
   m_GameObject: {fileID: 1309346900}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.197, y: 3.555, z: 2.959}
+  m_LocalPosition: {x: 0.949, y: 5.659, z: 3.41}
   m_LocalScale: {x: 0.68, y: 0.68, z: 0.68}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -806,13 +806,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1468887445}
   VelocityThreshhold: 0.03
-  IndentScale: 0.1
-  MaxIndent: 0.08
+  IndentScale: 0.31
+  MaxIndent: 1.01
   IndentRecoveryTime: 1.5
-  RecoveryDelayTime: 1
+  RecoveryDelayTime: 0.1
   JellyRadius: 0.2
   JellyRecoveryTime: 0.7
-  JellyStrength: 1.5
+  JellyStrength: 2.21
 --- !u!23 &1468887445
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -879,8 +879,8 @@ Transform:
   m_GameObject: {fileID: 1468887442}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.83, y: 0.61, z: 1.33}
-  m_LocalScale: {x: 1, y: 2, z: 1}
+  m_LocalPosition: {x: -0.368, y: 0.61, z: -1.793}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -991,7 +991,7 @@ Transform:
   m_GameObject: {fileID: 1665535947}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalPosition: {x: -0.02, y: -0, z: 0}
   m_LocalScale: {x: 15.34, y: 1, z: 23.18}
   m_ConstrainProportionsScale: 1
   m_Children: []
