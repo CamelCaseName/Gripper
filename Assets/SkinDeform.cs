@@ -36,6 +36,8 @@ public class SkinDeform : MonoBehaviour
     }
     bool isSkinned = false;
     private Vector3[] oldVertices;
+    private Vector3[] oldNormals;
+    //private Vector3[] touchNormals;
     private Vector3[] vertexOffsets;
     private Vector3[] vertexJellyOffsets;
     private readonly List<Vector3> vertices = new();
@@ -72,7 +74,10 @@ public class SkinDeform : MonoBehaviour
         }
         GetVertices();
         oldVertices = new Vector3[vertices.Count];
+        oldNormals = new Vector3[vertices.Count];
+        //touchNormals = new Vector3[vertices.Count];
         vertices.CopyTo(oldVertices, 0);
+        normals.CopyTo(oldNormals, 0);
         vertexOffsets = new Vector3[vertices.Count];
         vertexJellyOffsets = new Vector3[vertices.Count];
         touchtimes = new float[vertices.Count];
@@ -94,6 +99,7 @@ public class SkinDeform : MonoBehaviour
         var sjellyradius = JellyRadius / transform.localScale.magnitude;
         var sjellystrength = JellyStrength;
         var smaxIdent = MaxIndent / transform.localScale.magnitude;
+        Vector3 tlocalScale = transform.localScale;
         //scaledBounds = new(renderer.bounds.center, renderer.bounds.size * (1 + jellyFaker));
         for (int c = 0; c < colliders.Count; c++)
         {
@@ -108,7 +114,7 @@ public class SkinDeform : MonoBehaviour
             //move collider to local space
             var transformedColl = transform.InverseTransformPoint(coll.transform.position);
             //transformedColl.y -= renderer.bounds.center.y;
-            var collSize = ((coll.bounds.extents.x / transform.localScale.x) + (coll.bounds.extents.y / transform.localScale.y) + (coll.bounds.extents.z / transform.localScale.z)) / 3;
+            var collSize = ((coll.bounds.extents.x / tlocalScale.x) + (coll.bounds.extents.y / tlocalScale.y) + (coll.bounds.extents.z / tlocalScale.z)) / 3;
             var checksize = collSize + sjellyradius;
 
             for (int i = 0; i < vertices.Count; i++)
@@ -139,9 +145,17 @@ public class SkinDeform : MonoBehaviour
                     //should already be local space
                     if (isSkinned)
                     {
+                        //if (touchNormals[i] == zero)
+                        //{
+                        //    touchNormals[i] = normals[i];
+                        //}
                         //get diff vector, and then transform it via the closes bone transform.
                         //var bone = Mesh.GetAllBoneWeights()[0].
-                        vertexOffsets[i] += (normals[i] * ((diffLength - collSize) * sindentscale));
+                        //diff zwischen mesh normal und aktuell skinned normal gibt mir die rotation um meinen diff richtig zu rotieren
+                        //vertexOffsets[i] -= Quaternion.FromToRotation(touchNormals[i], oldNormals[i]) * (diff.normalized * ((diffLength - collSize) * sindentscale));
+                        vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diff.normalized * ((diffLength - collSize) * sindentscale));
+                        //vertexOffsets[i] -= (diff.normalized * ((diffLength - collSize) * sindentscale));
+                        //vertexOffsets[i] += (normals[i] * ((diffLength - collSize) * sindentscale));
                     }
                     else
                     {
@@ -177,7 +191,11 @@ public class SkinDeform : MonoBehaviour
             {
                 vertexOffsets[x] = Lerp(vertexOffsets[x], zero, time);
             }
-            //todo try and lerp to far then fast back
+            //else if (time >= 1)
+            //{
+            //    touchNormals[x] = zero;
+            //}
+            //todo try and lerp to far, then fast back
             //vertexOffsets[x] = Vector3.Lerp(vertexOffsets[x], Vector3.Lerp(vertexOffsets[x], zero, time), time);
             if (jtime >= 0)
             {
@@ -227,8 +245,9 @@ public class SkinDeform : MonoBehaviour
             }
         }
         Mesh.SetVertices(vertices);
+        //todo update bounds on some coroutine
         //Mesh.RecalculateBounds();
-        Mesh.RecalculateNormals();
+        //Mesh.RecalculateNormals();
     }
 
     private void GetVertices()
@@ -258,7 +277,10 @@ public class SkinDeform : MonoBehaviour
                     }
 
                     oldVertices = new Vector3[vertices.Count];
+                    oldNormals = new Vector3[vertices.Count];
+                    //touchNormals = new Vector3[vertices.Count];
                     Mesh.vertices.CopyTo(oldVertices, 0);
+                    Mesh.normals.CopyTo(oldNormals, 0);
                     vertexOffsets = new Vector3[vertices.Count];
                     vertexJellyOffsets = new Vector3[vertices.Count];
                     touchtimes = new float[vertices.Count];

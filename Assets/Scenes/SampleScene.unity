@@ -7794,7 +7794,7 @@ MonoBehaviour:
   renderer: {fileID: 1110914752}
   VelocityThreshhold: 0.03
   IndentScale: 0.2
-  MaxIndent: 0.003
+  MaxIndent: 0.0002
   IndentRecoveryTime: 2
   RecoveryDelayTime: 1
   JellyRadius: 0.1
@@ -8568,23 +8568,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -532226954652259419, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.8800649
+      value: -0.21409829
       objectReference: {fileID: 0}
     - target: {fileID: -532226954652259419, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.00000007426571
+      value: 0.7624452
       objectReference: {fileID: 0}
     - target: {fileID: -532226954652259419, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.00000008441428
+      value: -0.6104785
       objectReference: {fileID: 0}
     - target: {fileID: -532226954652259419, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.4748533
+      value: 0.012457386
+      objectReference: {fileID: 0}
+    - target: {fileID: -532226954652259419, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -18.136
+      objectReference: {fileID: 0}
+    - target: {fileID: -532226954652259419, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -197.161
       objectReference: {fileID: 0}
     - target: {fileID: -532226954652259419, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -56.7
+      value: -99.874
       objectReference: {fileID: 0}
     - target: {fileID: 562700528275531485, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalPosition.x
