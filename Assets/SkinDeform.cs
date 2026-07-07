@@ -119,10 +119,10 @@ public class SkinDeform : MonoBehaviour
         float currentTime = Time.time;
         var sindentscale = IndentScale;
         var t = transform;
-        Vector3 tlossyScale = t.InverseTransformDirection(t.localScale);
-        var sjellyradius = JellyRadius / tlossyScale.magnitude;
+        Vector3 tlocalScale = t.localScale;
+        var sjellyradius = JellyRadius / tlocalScale.magnitude;
         var sjellystrength = JellyStrength;
-        var smaxIdent = MaxIndent / tlossyScale.magnitude;
+        var smaxIdent = MaxIndent / tlocalScale.magnitude;
         //scaledBounds = new(renderer.bounds.center, renderer.bounds.size * (1 + jellyFaker));
         for (int c = 0; c < colliders.Count; c++)
         {
@@ -142,10 +142,10 @@ public class SkinDeform : MonoBehaviour
             if (coltype == 0)
             {
                 var tbounds = coll.bounds.extents;
-                var checksizeX = (tbounds.x / tlossyScale.x) + sjellyradius;
-                var checksizeY = (tbounds.y / tlossyScale.y) + sjellyradius;
-                var checksizeZ = (tbounds.z / tlossyScale.z) + sjellyradius;
-                var collSize = ((coll.bounds.extents.x / tlossyScale.x) + (coll.bounds.extents.y / tlossyScale.y) + (coll.bounds.extents.z / tlossyScale.z)) / 3;
+                var checksizeX = (tbounds.x / tlocalScale.x) + sjellyradius;
+                var checksizeY = (tbounds.y / tlocalScale.y) + sjellyradius;
+                var checksizeZ = (tbounds.z / tlocalScale.z) + sjellyradius;
+                var collSize = (checksizeX + checksizeY + checksizeZ) / 3;
                 var checksize = collSize + sjellyradius;
                 for (int i = 0; i < vertices.Count; i++)
                 {
@@ -172,13 +172,17 @@ public class SkinDeform : MonoBehaviour
                     var diffLength = diff.magnitude;
                     if (diffLength < collSize)
                     {
+                        var d = diff.normalized;
+                        d.x /= tlocalScale.x;
+                        d.y /= tlocalScale.y;
+                        d.z /= tlocalScale.z;
                         if (isSkinned)
                         {
-                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diff.normalized * ((diffLength - collSize) * sindentscale));
+                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (d * ((diffLength - collSize) * sindentscale));
                         }
                         else
                         {
-                            vertexOffsets[i] -= (diff.normalized * ((diffLength - collSize) * sindentscale));
+                            vertexOffsets[i] -= (d * ((diffLength - collSize) * sindentscale));
                         }
                         touchtimes[i] = currentTime;
                         setAnyVertex = true;
@@ -222,16 +226,18 @@ public class SkinDeform : MonoBehaviour
                 debugDir.Add(t.TransformVector(cubeRight));
                 debugPos.Add(t.TransformPoint(transformedColl + cubeBack));
                 debugDir.Add(t.TransformVector(cubeBack));
-                var cubeForwardN = cubeForward.normalized;
-                var cubeBackN = cubeBack.normalized;
-                var cubeRightN = cubeRight.normalized;
-                var cubeLeftN = cubeLeft.normalized;
-                var cubeUpN = cubeUp.normalized;
-                var cubeDownN = cubeDown.normalized;
+                var cubeForwardN = sindentscale * cubeForward.normalized;
+                var cubeBackN = sindentscale * cubeBack.normalized;
+                var cubeRightN = sindentscale * cubeRight.normalized;
+                var cubeLeftN = sindentscale * cubeLeft.normalized;
+                var cubeUpN = sindentscale * cubeUp.normalized;
+                var cubeDownN = sindentscale * cubeDown.normalized;
 
                 for (int i = 0; i < vertices.Count; i++)
                 {
                     var vert = vertices[i] - transformedColl;
+                    //todo somehow there has to be a fast way to check if the vert is at least somewhat close?
+                    //maybe "just" get the world axis aligned big bounds into local space, that should be enough??
                     if (vertexOffsets[i].sqrMagnitude >= smaxIdent || JellyRadius != 0 && vertexJellyOffsets[i].sqrMagnitude >= smaxIdent)
                     {
                         continue;
@@ -303,11 +309,11 @@ public class SkinDeform : MonoBehaviour
                     {
                         if (isSkinned)
                         {
-                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffDown * sindentscale * cubeDownN);
+                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffDown * cubeDownN);
                         }
                         else
                         {
-                            vertexOffsets[i] -= (diffDown * sindentscale * cubeDownN);
+                            vertexOffsets[i] -= (diffDown * cubeDownN);
                         }
                         debugDir.Add(t.TransformDirection(cubeDownN));
                         touchtimes[i] = currentTime;
@@ -319,11 +325,11 @@ public class SkinDeform : MonoBehaviour
                     {
                         if (isSkinned)
                         {
-                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffForward * sindentscale * cubeForwardN);
+                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffForward * cubeForwardN);
                         }
                         else
                         {
-                            vertexOffsets[i] -= (diffForward * sindentscale * cubeForwardN);
+                            vertexOffsets[i] -= (diffForward * cubeForwardN);
                         }
                         debugDir.Add(t.TransformDirection(cubeForwardN));
                         touchtimes[i] = currentTime;
@@ -335,11 +341,11 @@ public class SkinDeform : MonoBehaviour
                     {
                         if (isSkinned)
                         {
-                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffBack * sindentscale * cubeBackN);
+                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffBack * cubeBackN);
                         }
                         else
                         {
-                            vertexOffsets[i] -= (diffBack * sindentscale * cubeBackN);
+                            vertexOffsets[i] -= (diffBack * cubeBackN);
                         }
                         debugDir.Add(t.TransformDirection(cubeBackN));
                         touchtimes[i] = currentTime;
@@ -351,11 +357,11 @@ public class SkinDeform : MonoBehaviour
                     {
                         if (isSkinned)
                         {
-                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffRight * sindentscale * cubeRightN);
+                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffRight * cubeRightN);
                         }
                         else
                         {
-                            vertexOffsets[i] -= (diffRight * sindentscale * cubeRightN);
+                            vertexOffsets[i] -= (diffRight * cubeRightN);
                         }
                         debugDir.Add(t.TransformDirection(cubeRightN));
                         touchtimes[i] = currentTime;
@@ -367,11 +373,11 @@ public class SkinDeform : MonoBehaviour
                     {
                         if (isSkinned)
                         {
-                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffLeft * sindentscale * cubeLeftN);
+                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffLeft * cubeLeftN);
                         }
                         else
                         {
-                            vertexOffsets[i] -= (diffLeft * sindentscale * cubeLeftN);
+                            vertexOffsets[i] -= (diffLeft * cubeLeftN);
                         }
                         debugDir.Add(t.TransformDirection(cubeLeftN));
                         touchtimes[i] = currentTime;
@@ -383,11 +389,11 @@ public class SkinDeform : MonoBehaviour
                     {
                         if (isSkinned)
                         {
-                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffUp * sindentscale * cubeUpN);
+                            vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (diffUp * cubeUpN);
                         }
                         else
                         {
-                            vertexOffsets[i] -= (diffUp * sindentscale * cubeUpN);
+                            vertexOffsets[i] -= (diffUp * cubeUpN);
                         }
                         debugDir.Add(t.TransformDirection(cubeUpN));
                         touchtimes[i] = currentTime;
@@ -395,6 +401,8 @@ public class SkinDeform : MonoBehaviour
                         indent = true;
                         continue;
                     }
+                    //todo also do jelly effect. This probably requires the same setup as the normal indent,
+                    //just with a bigger colliding box and only for a point that does not lie inside the real collider
                     //else if (JellyRadius > 0
                     //    && !vertexJellyTouched[i]
                     //    && indent
@@ -419,6 +427,7 @@ public class SkinDeform : MonoBehaviour
             return;
         }
 
+        //todo vectorize
         for (int x = 0; x < vertexOffsets.Length; x++)
         {
             var time = (currentTime - (touchtimes[x] + RecoveryDelayTime)) / IndentRecoveryTime;
@@ -511,6 +520,7 @@ public class SkinDeform : MonoBehaviour
     private void SetVertices()
     {
         float currentTime = Time.time;
+        //todo vectorize
         for (int i = 0; i < vertices.Count; i++)
         {
             var jtime = (currentTime - (touchtimes[i])) / jellyBuildup;
@@ -542,6 +552,7 @@ public class SkinDeform : MonoBehaviour
                 {
                     verticesF = new ExampleVertex[buffer.count];
                     buffer.GetData(verticesF);
+                    //todo vectorize
                     for (int i = 0; i < verticesF.Length; i++)
                     {
                         vertices.Add(verticesF[i].pos);
