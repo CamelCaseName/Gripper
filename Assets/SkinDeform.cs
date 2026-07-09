@@ -46,6 +46,7 @@ public class SkinDeform : MonoBehaviour
     //private Vector3[] touchNormals;
     private Vector3[] vertexOffsets;
     private Vector3[] vertexJellyOffsets;
+    //todo maybe puit normals, oldnormals and vertices in the same list so we stream all three totally linearly and dont randomly access memory? should give some small caching improvement
     private readonly List<Vector3> vertices = new();
     ExampleVertex[] verticesF;
     private readonly List<Vector3> normals = new();
@@ -67,9 +68,6 @@ public class SkinDeform : MonoBehaviour
     readonly Vector3 zero = Vector3.zero;
     bool prevsetAnyVertex = false;
     readonly float[] differences = new float[6];
-    //todo remove or add define toggle. better remove
-    List<Vector3> debugPos = new();
-    List<Vector3> debugDir = new();
     //Bounds scaledBounds;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -108,8 +106,6 @@ public class SkinDeform : MonoBehaviour
     //todo add option to apply a force to the mesh Gameobject after its been smooshed proportional to the total sum of vertex offset
     void Update()
     {
-        debugDir.Clear();
-        debugPos.Clear();
         GetVertices();
         if (vertices.Count == 0)
         {
@@ -207,29 +203,30 @@ public class SkinDeform : MonoBehaviour
                 //angle is finally correct when scaled.
                 //todo collider becomes a little smaller the more the mesh is stretched
                 Matrix4x4 ltwtranspose = t.localToWorldMatrix.transpose;
+                Vector3 collPos = collT.position;
                 var gcubeRight = ltwtranspose.MultiplyVector(collT.right);
                 gcubeRight.x *= tlocalScale.x;
                 gcubeRight.y *= tlocalScale.y;
                 gcubeRight.z *= tlocalScale.z;
                 gcubeRight = t.rotation * gcubeRight.normalized * (collLocalScale.x / 2);
-                var cubeRightP = t.InverseTransformPoint(collT.position + gcubeRight);
-                var cubeLeftP = t.InverseTransformPoint(collT.position - gcubeRight);
+                var cubeRightP = t.InverseTransformPoint(collPos + gcubeRight);
+                var cubeLeftP = t.InverseTransformPoint(collPos - gcubeRight);
 
                 var gcubeUp = ltwtranspose.MultiplyVector(collT.up);
                 gcubeUp.x *= tlocalScale.x;
                 gcubeUp.y *= tlocalScale.y;
                 gcubeUp.z *= tlocalScale.z;
                 gcubeUp = t.rotation * gcubeUp.normalized * (collLocalScale.y / 2);
-                var cubeUpP = t.InverseTransformPoint(collT.position + gcubeUp);
-                var cubeDownP = t.InverseTransformPoint(collT.position - gcubeUp);
+                var cubeUpP = t.InverseTransformPoint(collPos + gcubeUp);
+                var cubeDownP = t.InverseTransformPoint(collPos - gcubeUp);
 
                 var gcubeForward = ltwtranspose.MultiplyVector(collT.forward);
                 gcubeForward.x *= tlocalScale.x;
                 gcubeForward.y *= tlocalScale.y;
                 gcubeForward.z *= tlocalScale.z;
                 gcubeForward = t.rotation * gcubeForward.normalized * (collLocalScale.z / 2);
-                var cubeForwardP = t.InverseTransformPoint(collT.position + gcubeForward);
-                var cubeBackP = t.InverseTransformPoint(collT.position - gcubeForward);
+                var cubeForwardP = t.InverseTransformPoint(collPos + gcubeForward);
+                var cubeBackP = t.InverseTransformPoint(collPos - gcubeForward);
 
                 var cubeForwardN = sindentscale * (cubeForwardP - transformedColl).normalized;
                 var cubeBackN = -cubeForwardN;
@@ -238,15 +235,35 @@ public class SkinDeform : MonoBehaviour
                 var cubeUpN = sindentscale * (cubeUpP - transformedColl).normalized;
                 var cubeDownN = -cubeUpN;
 
+                //transform the local axes
+                var extents = coll.bounds.extents;
+                var axisX = t.InverseTransformVector(extents.x, 0, 0);
+                var axisY = t.InverseTransformVector(0, extents.y, 0);
+                var axisZ = t.InverseTransformVector(0, 0, extents.z);
+
+                //sum their absolute value to get the world extents
+                extents.x = Mathf.Abs(axisX.x) + Mathf.Abs(axisY.x) + Mathf.Abs(axisZ.x);
+                extents.y = Mathf.Abs(axisX.y) + Mathf.Abs(axisY.y) + Mathf.Abs(axisZ.y);
+                extents.z = Mathf.Abs(axisX.z) + Mathf.Abs(axisY.z) + Mathf.Abs(axisZ.z);
+
                 //when the mesh is scaled not uniformly, the collider vector length is not correct
 
                 for (int i = 0; i < vertices.Count; i++)
                 {
                     var vert = vertices[i];
-                    //var vert = vertices[i] - transformedColl;
-                    //todo somehow there has to be a fast way to check if the vert is at least somewhat close?
-                    //maybe "just" get the world axis aligned big bounds into local space, that should be enough??
-                    //so we dont have to calculate 6x dot product but just 12 subtractions
+
+                    if (transformedColl.x - extents.x >= vert.x || vert.x >= transformedColl.x + extents.x)
+                    {
+                        continue;
+                    }
+                    if (transformedColl.y - extents.y >= vert.y || vert.y >= transformedColl.y + extents.y)
+                    {
+                        continue;
+                    }
+                    if (transformedColl.z - extents.z >= vert.z || vert.z >= transformedColl.z + extents.z)
+                    {
+                        continue;
+                    }
                     if (vertexOffsets[i].sqrMagnitude >= smaxIdent || JellyRadius != 0 && vertexJellyOffsets[i].sqrMagnitude >= smaxIdent)
                     {
                         continue;
@@ -404,7 +421,6 @@ public class SkinDeform : MonoBehaviour
                         {
                             vertexOffsets[i] -= (diffUp * cubeUpN);
                         }
-                        debugDir.Add(t.TransformDirection(cubeUpN));
                         touchtimes[i] = currentTime;
                         setAnyVertex = true;
                         indent = true;
@@ -478,41 +494,6 @@ public class SkinDeform : MonoBehaviour
         }
         prevsetAnyVertex = setAnyVertex;
     }
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying)
-        {
-            return;
-        }
-        //Collider coll = colliders[ColliderSelect];
-        //Vector3 tlocalScale = transform.localScale;
-        //var transformedColl = transform.InverseTransformPoint(coll.transform.position);
-        //var tbounds = coll.transform.localScale / 2;
-        //var collSizeX = tbounds.x / tlocalScale.x;
-        //var collSizeY = tbounds.y / tlocalScale.y;
-        //var collSizeZ = tbounds.z / tlocalScale.z;
-        //var cubeForward = transform.InverseTransformDirection(coll.transform.forward * collSizeZ);
-        //var cubeBack = -cubeForward;
-        //var cubeRight = transform.InverseTransformDirection(coll.transform.right * collSizeX);
-        //var cubeLeft = -cubeRight;
-        //var cubeUp = transform.InverseTransformDirection(coll.transform.up * collSizeY);
-        //var cubeDown = -cubeUp;
-        Handles.color = Color.red;
-        for (int i = 0; i < debugPos.Count; i++)
-        {
-            Handles.ArrowHandleCap(0, debugPos[i], Quaternion.LookRotation(debugDir[i]), 1, EventType.Repaint);
-        }
-        //Handles.color = Color.green;
-        //Handles.ArrowHandleCap(0, transformedColl + cubeUp, Quaternion.LookRotation(cubeUp), 1, EventType.Repaint);
-        //Handles.color = Color.blue;
-        //Handles.ArrowHandleCap(0, transformedColl + cubeForward, Quaternion.LookRotation(cubeForward), 1, EventType.Repaint);
-        //Handles.color = Color.teal;
-        //Handles.ArrowHandleCap(0, transformedColl + cubeLeft, Quaternion.LookRotation(cubeLeft), 1, EventType.Repaint);
-        //Handles.color = Color.violet;
-        //Handles.ArrowHandleCap(0, transformedColl + cubeDown, Quaternion.LookRotation(cubeDown), 1, EventType.Repaint);
-        //Handles.color = Color.yellow;
-        //Handles.ArrowHandleCap(0, transformedColl + cubeBack, Quaternion.LookRotation(cubeBack), 1, EventType.Repaint);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
@@ -522,6 +503,20 @@ public class SkinDeform : MonoBehaviour
             x = a.x + (b.x - a.x) * t,
             y = a.y + (b.y - a.y) * t,
             z = a.z + (b.z - a.z) * t
+        };
+        return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 OverLerp(Vector3 a, Vector3 b, float times, float t)
+    {
+        //the second part gives a praubla anchored at (0/1) and (1/1) with maximum wherever you set times + 1.
+        var s = t * (1 + times - ((0.5f - t) * (0.5f - t) / (0.25f / times)));
+        Vector3 result = new()
+        {
+            x = a.x + (b.x - a.x) * s,
+            y = a.y + (b.y - a.y) * s,
+            z = a.z + (b.z - a.z) * s
         };
         return result;
     }
