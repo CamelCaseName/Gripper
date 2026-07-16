@@ -1,15 +1,8 @@
-using Mono.Cecil;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
-using UnityEditor;
-using UnityEditor.Rendering;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class SkinDeform : MonoBehaviour
 {
@@ -42,10 +35,8 @@ public class SkinDeform : MonoBehaviour
     }
     bool isSkinned = false;
     private Vector3[] oldVertices;
-    //private Vector3[] touchNormals;
+    private int[,] identicalVerts;
     private Vector3[] oldNormals;
-    //todo add list with vertex indices whose pos is identical so we move them by the same amount and dont rip the mesh apart
-
     //todo for gpu: use vertex shader and keep offsets and stuff on gopu, only supply collider data each frame
 
     //todo add option to preprocess meshcollider mesh for non-convex meshes to check the thickness behind each vertex -> max depth
@@ -53,35 +44,40 @@ public class SkinDeform : MonoBehaviour
     //todo add option to preprocess meshcollider mesh to find all nearby vertices and store
     //them in a list so we can calculate the sphere size needed to be close enough to the vertex
     private Vector3[] vertexOffsets;
-    private Vector3[] vertexJellyOffsets;
+    private Vector3[] fakeVolumeVertexOffsets;
+    private Vector3[] jellyVertexOffsets;
     private readonly List<Vector3> vertices = new();
     private readonly List<Vector3> normals = new();
     ExampleVertex[] verticesF;
     private float[] touchtimes;
-    private float[] jellyTouchtimes;
+    private float[] jellyTouchTimes;
+    GraphicsBuffer vertBuffer = null;
     //todo add tooltips, min max and stuff and shit here
     public Renderer renderer = null;
     public readonly string colliderTag = "SkinColliders";
-    public float VelocityThreshhold = 0.03f;
-    public float IndentScale = 0.7f;
     public float MaxIndent = 0.03f;
-    public float IndentRecoveryTime = 2f;
+    public float IndentScale = 0.7f;
     public float RecoveryDelayTime = 0.1f;
+    public float IndentRecoveryTime = 2f;
     public float JellyRadius = 0.15f;
-    public float JellyRecoveryTime = 0.7f;
     public float JellyStrength = 1.1f;
-    public bool GlobalJellyEnabled = false;
-    public float GlobalJellyScale = 0.025f;
+    public float JellyRecoveryTime = 0.7f;
+    public float VelocityThreshhold = 0.03f;
+    public bool FakeVolumeEnabled = false;
+    public float FakeVolumeScale = 0.025f;
+    public bool FixDuplicateVertices = false;
     readonly List<Vector3> oldCollPos = new();
     readonly List<int> collType = new();
     readonly Vector3 zero = Vector3.zero;
     bool prevsetAnyVertex = false;
+    float changePerVert = 0;
     int touchCount = 0;
-    float totalTouchValue = 0;
+    Vector3 totalTouchValue = Vector3.zero;
+    int dupeVertCount = 0;
     readonly float[] differences = new float[6];
     //Bounds scaledBounds;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         foreach (var go in GameObject.FindGameObjectsWithTag(colliderTag))
         {
@@ -115,9 +111,44 @@ public class SkinDeform : MonoBehaviour
         vertices.CopyTo(oldVertices, 0);
         normals.CopyTo(oldNormals, 0);
         vertexOffsets = new Vector3[vertices.Count];
-        vertexJellyOffsets = new Vector3[vertices.Count];
+        jellyVertexOffsets = new Vector3[vertices.Count];
+        fakeVolumeVertexOffsets = new Vector3[vertices.Count];
         touchtimes = new float[vertices.Count];
-        jellyTouchtimes = new float[vertices.Count];
+        jellyTouchTimes = new float[vertices.Count];
+        if (!FixDuplicateVertices)
+        {
+            return;
+        }
+        int maxSimilarCount = 0;
+        List<List<int>> indices = new();
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            int similarCount = 0;
+            Vector3 vert = vertices[i];
+            for (int j = i + 1; j < vertices.Count; j++)
+            {
+                while (j >= indices.Count)
+                {
+                    indices.Add(new());
+                }
+                if (vert == vertices[j])
+                {
+                    indices[i].Add(j);
+                    indices[j].Add(i);
+                    similarCount++;
+                }
+            }
+            dupeVertCount += similarCount;
+            maxSimilarCount = Math.Max(similarCount, maxSimilarCount);
+        }
+        identicalVerts = new int[vertices.Count, maxSimilarCount];
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            for (int x = 0; x < indices[i].Count; x++)
+            {
+                identicalVerts[i, x] = indices[i][x];
+            }
+        }
     }
 
     //todo change to computeshader on toggle so the user can choose between CPU and GPU load
@@ -134,10 +165,11 @@ public class SkinDeform : MonoBehaviour
         var t = transform;
         Vector3 tlocalScale = t.localScale;
         var sjellystrength = JellyStrength;
+        float sjelly = (1 + JellyRadius);
         var smaxIdent = MaxIndent / tlocalScale.magnitude;
 
+        totalTouchValue = zero;
         touchCount = 0;
-        totalTouchValue = 0;
         var collCount = colliders.Count;
         for (int c = 0; c < collCount; c++)
         {
@@ -167,6 +199,11 @@ public class SkinDeform : MonoBehaviour
                 var count = vertices.Count;
                 for (int i = 0; i < count; i++)
                 {
+                    if (ShouldSkipVertImpl(i))
+                    {
+                        continue;
+                    }
+
                     var vert = vertices[i] - transformedColl;
                     if (vert.x > checksizeX || vert.x < -checksizeX)
                     {
@@ -180,7 +217,7 @@ public class SkinDeform : MonoBehaviour
                     {
                         continue;
                     }
-                    if (vertexOffsets[i].sqrMagnitude >= smaxIdent || JellyRadius != 0 && vertexJellyOffsets[i].sqrMagnitude >= smaxIdent)
+                    if (vertexOffsets[i].sqrMagnitude >= smaxIdent || JellyRadius != 0 && jellyVertexOffsets[i].sqrMagnitude >= smaxIdent)
                     {
                         touchtimes[i] = currentTime;
                         continue;
@@ -189,7 +226,7 @@ public class SkinDeform : MonoBehaviour
                     var diffLength = vert.magnitude;
                     if (diffLength < collSize)
                     {
-                        //todo add option for "smooshing" in the collider velocity direction
+                        //todo add option for "smooshing/dragging" in the collider velocity direction
                         float scale = ((collSize - diffLength) / collSize) * sindentscale;
                         if (isSkinned)
                         {
@@ -199,8 +236,6 @@ public class SkinDeform : MonoBehaviour
                         {
                             vertexOffsets[i] += scale * vert;
                         }
-                        touchCount++;
-                        totalTouchValue += scale;
                         touchtimes[i] = currentTime;
                         setAnyVertex = true;
                     }
@@ -210,15 +245,14 @@ public class SkinDeform : MonoBehaviour
                         && diffLength > collSize
                         && diffLength < checksize)
                     {
-                        vertexJellyOffsets[i] = normals[i] * (-1 * (diffLength - checksize) * (sindentscale * sjellystrength * (1 + vel)));
-                        jellyTouchtimes[i] = currentTime;
+                        jellyVertexOffsets[i] = normals[i] * (-1 * (diffLength - checksize) * (sindentscale * sjellystrength * (1 + vel)));
+                        jellyTouchTimes[i] = currentTime;
                         setAnyVertex = true;
                     }
                 }
             }
             else if (coltype == 1)
             {
-                float sjelly = (1 + JellyRadius);
                 var collLocalScale = collT.localScale * sjelly;
                 var extents = coll.bounds.extents * sjelly;
                 var scaledSizeX = (collLocalScale.x / tlocalScale.x) * (JellyRadius) / 4;
@@ -274,6 +308,10 @@ public class SkinDeform : MonoBehaviour
                 var count = vertices.Count;
                 for (int i = 0; i < count; i++)
                 {
+                    if (ShouldSkipVertImpl(i))
+                    {
+                        continue;
+                    }
                     var vert = vertices[i];
 
                     if (transformedColl.x - extents.x >= vert.x || vert.x >= transformedColl.x + extents.x)
@@ -288,7 +326,7 @@ public class SkinDeform : MonoBehaviour
                     {
                         continue;
                     }
-                    if (vertexOffsets[i].sqrMagnitude >= smaxIdent || JellyRadius != 0 && vertexJellyOffsets[i].sqrMagnitude >= smaxIdent)
+                    if (vertexOffsets[i].sqrMagnitude >= smaxIdent || JellyRadius != 0 && jellyVertexOffsets[i].sqrMagnitude >= smaxIdent)
                     {
                         continue;
                     }
@@ -358,130 +396,40 @@ public class SkinDeform : MonoBehaviour
                     if (min == diffDown)
                     {
                         jelly = scaledSizeY + diffDown;
-                        if (jelly <= 0 || sjelly == 1)
-                        {
-                            float scale = sindentscale * jelly;
-                            if (isSkinned)
-                            {
-                                vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (scale * cubeDownN);
-                            }
-                            else
-                            {
-                                vertexOffsets[i] -= (scale * cubeDownN);
-                            }
-                            touchCount++;
-                            totalTouchValue += scale;
-                            touchtimes[i] = currentTime;
-                            setAnyVertex = true;
-                        }
+                        setAnyVertex = SetVertOffset(cubeDownN, i, jelly);
                     }
                     else if (min == diffForward)
                     {
                         jelly = scaledSizeZ + diffForward;
-                        if (jelly <= 0 || sjelly == 1)
-                        {
-                            float scale = sindentscale * diffForward;
-                            if (isSkinned)
-                            {
-                                vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (scale * cubeForwardN);
-                            }
-                            else
-                            {
-                                vertexOffsets[i] -= (scale * cubeForwardN);
-                            }
-                            touchCount++;
-                            totalTouchValue += scale;
-                            touchtimes[i] = currentTime;
-                            setAnyVertex = true;
-                        }
+                        setAnyVertex = SetVertOffset(cubeForwardN, i, jelly);
                     }
                     else if (min == diffBack)
                     {
                         jelly = scaledSizeZ + diffBack;
-                        if (jelly <= 0 || sjelly == 1)
-                        {
-                            float scale = sindentscale * diffBack;
-                            if (isSkinned)
-                            {
-                                vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (scale * cubeBackN);
-                            }
-                            else
-                            {
-                                vertexOffsets[i] -= (scale * cubeBackN);
-                            }
-                            touchCount++;
-                            totalTouchValue += scale;
-                            touchtimes[i] = currentTime;
-                            setAnyVertex = true;
-                        }
+                        setAnyVertex = SetVertOffset(cubeBackN, i, jelly);
                     }
                     else if (min == diffRight)
                     {
                         jelly = scaledSizeX + diffRight;
-                        if (jelly <= 0 || sjelly == 1)
-                        {
-                            float scale = sindentscale * diffRight;
-                            if (isSkinned)
-                            {
-                                vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (scale * cubeRightN);
-                            }
-                            else
-                            {
-                                vertexOffsets[i] -= (scale * cubeRightN);
-                            }
-                            touchCount++;
-                            totalTouchValue += scale;
-                            touchtimes[i] = currentTime;
-                            setAnyVertex = true;
-                        }
+                        setAnyVertex = SetVertOffset(cubeRightN, i, jelly);
                     }
                     else if (min == diffLeft)
                     {
                         jelly = scaledSizeX + diffLeft;
-                        if (jelly <= 0 || sjelly == 1)
-                        {
-                            float scale = sindentscale * diffLeft;
-                            if (isSkinned)
-                            {
-                                vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (scale * cubeLeftN);
-                            }
-                            else
-                            {
-                                vertexOffsets[i] -= (scale * cubeLeftN);
-                            }
-                            touchCount++;
-                            totalTouchValue += scale;
-                            touchtimes[i] = currentTime;
-                            setAnyVertex = true;
-                        }
+                        setAnyVertex = SetVertOffset(cubeLeftN, i, jelly);
                     }
                     else if (min == diffUp)
                     {
                         jelly = scaledSizeY + diffUp;
-                        if (jelly <= 0 || sjelly == 1)
-                        {
-                            float scale = sindentscale * diffUp;
-                            if (isSkinned)
-                            {
-                                vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (scale * cubeUpN);
-                            }
-                            else
-                            {
-                                vertexOffsets[i] -= (scale * cubeUpN);
-                            }
-                            touchCount++;
-                            totalTouchValue += scale;
-                            touchtimes[i] = currentTime;
-                            setAnyVertex = true;
-                        }
+                        setAnyVertex = SetVertOffset(cubeUpN, i, jelly);
                     }
                     if (jelly > 0
                     && vertexOffsets[i] == zero
                     && vel > VelocityThreshhold)
                     {
                         //this works and is fine
-                        vertexJellyOffsets[i] = normals[i] * (jelly * (sindentscale * sjellystrength * (1 + vel)));
-                        jellyTouchtimes[i] = currentTime;
+                        jellyVertexOffsets[i] = normals[i] * (jelly * (sindentscale * sjellystrength * (1 + vel)));
+                        jellyTouchTimes[i] = currentTime;
                         setAnyVertex = true;
                     }
                     continue;
@@ -567,6 +515,10 @@ public class SkinDeform : MonoBehaviour
                 //var count = vertices.Count;
                 //for (int i = 0; i < count; i++)
                 //{
+                //if (!ShouldSkipVert(i))
+                //{
+                //    continue;
+                //}
                 //    var vert = vertices[i];
 
                 //    if (transformedColl.x - extents.x >= vert.x || vert.x >= transformedColl.x + extents.x)
@@ -634,14 +586,20 @@ public class SkinDeform : MonoBehaviour
             return;
         }
 
-        float changePerVert = Mathf.Abs(totalTouchValue) / (vertices.Count - touchCount);
-
         //todo vectorize
         for (int x = 0; x < vertexOffsets.Length; x++)
         {
+            if (ShouldSkipVertImpl(x))
+            {
+                continue;
+            }
             var time = (currentTime - (touchtimes[x] + RecoveryDelayTime)) / IndentRecoveryTime;
-            var jtime = (currentTime - (jellyTouchtimes[x] + jellyBuildup)) / JellyRecoveryTime;
+            var jtime = (currentTime - (jellyTouchTimes[x] + jellyBuildup)) / JellyRecoveryTime;
 
+            if (vertexOffsets[x].sqrMagnitude > 0.000001f)
+            {
+                touchCount++;
+            }
             setAnyVertex |= time <= 1f;
             if (time >= 0 && time < 1)
             {
@@ -649,17 +607,55 @@ public class SkinDeform : MonoBehaviour
                 //for overlerping that is
                 vertexOffsets[x] = Lerp(vertexOffsets[x], zero, time);
             }
-            if (GlobalJellyEnabled && changePerVert > 0)
-            {
-                vertexJellyOffsets[x] += normals[x] * (changePerVert * GlobalJellyScale);
-                jellyTouchtimes[x] = currentTime;
-            }
 
             if (jtime >= 0 && jtime < 1)
             {
-                vertexJellyOffsets[x] = Lerp(vertexJellyOffsets[x], zero, jtime);
+                jellyVertexOffsets[x] = Lerp(jellyVertexOffsets[x], zero, jtime);
             }
         }
+
+        if (FakeVolumeEnabled && setAnyVertex)
+        {
+            var count = vertices.Count;
+            for (int i = 0; i < count; i++)
+            {
+                if (ShouldSkipVertImpl(i))
+                {
+                    continue;
+                }
+                //this cahnges correctly
+                totalTouchValue += vertexOffsets[i];
+            }
+
+            touchCount += 1;
+            if (FakeVolumeEnabled)
+            {
+                changePerVert = (changePerVert + (Mathf.Abs(totalTouchValue.magnitude) / touchCount) / (vertices.Count - dupeVertCount - touchCount)) / 2;
+            }
+            else
+            {
+                changePerVert = (changePerVert + (Mathf.Abs(totalTouchValue.magnitude) / touchCount) / (vertices.Count - touchCount)) / 2;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                if (ShouldSkipVertImpl(i))
+                {
+                    continue;
+                }
+                Vector3 offs = vertexOffsets[i];
+                if (offs.x == 0 && offs.y == 0 && offs.z == 0)
+                {
+                    fakeVolumeVertexOffsets[i] = normals[i] * (changePerVert * FakeVolumeScale * 512);
+                    touchtimes[i] = currentTime;
+                }
+                else
+                {
+                    fakeVolumeVertexOffsets[i] = zero;
+                }
+            }
+        }
+        setAnyVertex |= changePerVert > 0;
         if (setAnyVertex)
         {
             SetVertices();
@@ -674,6 +670,41 @@ public class SkinDeform : MonoBehaviour
             }
         }
         prevsetAnyVertex = setAnyVertex;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool SetVertOffset(Vector3 dir, int i, float jellydist)
+        {
+            if (jellydist <= 0 || sjelly == 1)
+            {
+                float scale = sindentscale * jellydist;
+                if (isSkinned)
+                {
+                    vertexOffsets[i] -= Quaternion.FromToRotation(normals[i], oldNormals[i]) * (scale * dir);
+                }
+                else
+                {
+                    vertexOffsets[i] -= (scale * dir);
+                }
+                touchtimes[i] = currentTime;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool ShouldSkipVertImpl(int i)
+    {
+        if (FixDuplicateVertices && identicalVerts is not null)
+        {
+            //if this current vertex has a duplicate one that already appeared, we can skip it
+            if (identicalVerts[i, 0] < i && identicalVerts[i, 0] > 0)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -705,21 +736,52 @@ public class SkinDeform : MonoBehaviour
     private void SetVertices()
     {
         float currentTime = Time.time;
-        //todo vectorize
+        int len = 0;
         var count = vertices.Count;
+        if (FixDuplicateVertices)
+        {
+            len = identicalVerts.GetLength(1);
+        }
+
+        //todo vectorize
         for (int i = 0; i < count; i++)
         {
-            var jtime = (currentTime - (jellyTouchtimes[i])) / jellyBuildup;
+            if (FixDuplicateVertices)
+            {
+                //if this current vertex has a duplicate one that already appeared, we can skip it
+                if (ShouldSkipVertImpl(i))
+                {
+                    continue;
+                }
+                for (int x = 0; x < len; x++)
+                {
+                    int index = identicalVerts[i, x];
+                    if (index <= 0)
+                    {
+                        break;
+                    }
+
+                    SetVertsImpl(index, i);
+                }
+            }
+
+            SetVertsImpl(i, i);
+        }
+        Mesh.SetVertices(vertices);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SetVertsImpl(int index, int source)
+        {
+            var jtime = (currentTime - jellyTouchTimes[source]) / jellyBuildup;
             if (jtime >= 0 && jtime < 1)
             {
-                vertices[i] = oldVertices[i] + vertexOffsets[i] + Lerp(zero, vertexJellyOffsets[i], jtime);
+                vertices[index] = oldVertices[index] + vertexOffsets[source] + fakeVolumeVertexOffsets[source] + Lerp(zero, jellyVertexOffsets[source], jtime);
             }
             else
             {
-                vertices[i] = oldVertices[i] + vertexOffsets[i] + vertexJellyOffsets[i];
+                vertices[index] = oldVertices[index] + vertexOffsets[source] + fakeVolumeVertexOffsets[source] + jellyVertexOffsets[source];
             }
         }
-        Mesh.SetVertices(vertices);
     }
 
     private void GetVertices()
@@ -731,13 +793,13 @@ public class SkinDeform : MonoBehaviour
         }
         else
         {
-            var buffer = ((SkinnedMeshRenderer)renderer).GetVertexBuffer();
-            if (buffer is not null)
+            vertBuffer ??= ((SkinnedMeshRenderer)renderer).GetVertexBuffer();
+            if (vertBuffer is not null)
             {
                 if (vertices.Count == 0)
                 {
-                    verticesF = new ExampleVertex[buffer.count];
-                    buffer.GetData(verticesF);
+                    verticesF = new ExampleVertex[vertBuffer.count];
+                    vertBuffer.GetData(verticesF);
                     //todo vectorize
                     for (int i = 0; i < verticesF.Length; i++)
                     {
@@ -749,18 +811,20 @@ public class SkinDeform : MonoBehaviour
                         normals.Add(verticesF[i].normal);
                     }
 
-                    oldVertices = new Vector3[vertices.Count];
-                    oldNormals = new Vector3[vertices.Count];
+                    int count = vertices.Count;
+                    oldVertices = new Vector3[count];
+                    oldNormals = new Vector3[count];
                     //touchNormals = new Vector3[vertices.Count];
                     Mesh.vertices.CopyTo(oldVertices, 0);
                     Mesh.normals.CopyTo(oldNormals, 0);
-                    vertexOffsets = new Vector3[vertices.Count];
-                    vertexJellyOffsets = new Vector3[vertices.Count];
-                    touchtimes = new float[vertices.Count];
+                    vertexOffsets = new Vector3[count];
+                    fakeVolumeVertexOffsets = new Vector3[count];
+                    jellyVertexOffsets = new Vector3[count];
+                    touchtimes = new float[count];
                 }
                 else
                 {
-                    buffer.GetData(verticesF);
+                    vertBuffer.GetData(verticesF);
                     for (int i = 0; i < verticesF.Length; i++)
                     {
                         vertices[i] = verticesF[i].pos;
@@ -773,6 +837,21 @@ public class SkinDeform : MonoBehaviour
                 }
             }
         }
+    }
+
+    void OnDestroy()
+    {
+        oldVertices = null;
+        oldNormals = null;
+        identicalVerts = null;
+        vertices.Clear();
+        normals.Clear();
+        vertexOffsets = null;
+        jellyVertexOffsets = null;
+        fakeVolumeVertexOffsets = null;
+        touchtimes = null;
+        jellyTouchTimes = null;
+        verticesF = null;
     }
 }
 

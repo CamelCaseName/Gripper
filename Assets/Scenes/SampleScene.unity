@@ -289,6 +289,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: X Bot@Strut Walking
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 20e19c12ebea32c4abdd9405707387d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 20e19c12ebea32c4abdd9405707387d3, type: 3}
       propertyPath: m_Controller
       value: 
@@ -1342,7 +1346,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &319043124
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1906,13 +1910,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 345309036}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.38268343, y: 0, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 2.204, y: 2.341, z: -9.011}
-  m_LocalScale: {x: 3.3, y: 0.35, z: 2.3}
+  m_LocalRotation: {x: -0.3046981, y: 0, z: 0, w: 0.952449}
+  m_LocalPosition: {x: 1.967, y: 3.131, z: -8.878}
+  m_LocalScale: {x: 1.0371429, y: 0.52, z: 0.7228571}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -45, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -35.48, y: 0, z: 0}
 --- !u!1 &363858261
 GameObject:
   m_ObjectHideFlags: 0
@@ -2284,7 +2288,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &431536343
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2567,6 +2571,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ashley
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fc6059e5bddff2c4d9b871c7e0ef41f4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4742473837712756890, guid: fc6059e5bddff2c4d9b871c7e0ef41f4, type: 3}
       propertyPath: m_Size
       value: 1.8060652
@@ -2642,6 +2650,121 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1740388296}
   m_SourcePrefab: {fileID: 100100000, guid: fc6059e5bddff2c4d9b871c7e0ef41f4, type: 3}
+--- !u!1 &459420966
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 459420970}
+  - component: {fileID: 459420969}
+  - component: {fileID: 459420968}
+  - component: {fileID: 459420967}
+  m_Layer: 0
+  m_Name: Tester (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &459420967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 459420966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77402bc403378394db195d1d9a19d598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
+  renderer: {fileID: 459420968}
+  MaxIndent: 0.4
+  IndentScale: 1
+  RecoveryDelayTime: 0.66
+  IndentRecoveryTime: 1.2
+  JellyRadius: 0.2
+  JellyStrength: 2.21
+  JellyRecoveryTime: 0.7
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 1
+  FakeVolumeScale: 10
+  FixDuplicateVertices: 0
+--- !u!23 &459420968
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 459420966}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 0553e902ea25fde4d9f8157bb95675ab, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &459420969
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 459420966}
+  m_Mesh: {fileID: -5495902117074765545, guid: d79fda79d4244334b8ca6fc843b8164b, type: 3}
+--- !u!4 &459420970
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 459420966}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
+  m_LocalPosition: {x: 1, y: 5.63, z: -6.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 90, z: 0}
 --- !u!1 &474549282
 GameObject:
   m_ObjectHideFlags: 0
@@ -2887,7 +3010,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &503631663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2901,16 +3024,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 503631665}
-  VelocityThreshhold: 0.03
-  IndentScale: 0.7
   MaxIndent: 0.03
-  IndentRecoveryTime: 2
+  IndentScale: 0.7
   RecoveryDelayTime: 0.1
+  IndentRecoveryTime: 2
   JellyRadius: 0.15
-  JellyRecoveryTime: 0.7
   JellyStrength: 1.1
-  GlobalJellyEnabled: 0
-  GlobalJellyScale: 0.025
+  JellyRecoveryTime: 0.7
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 0
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 0
 --- !u!136 &503631664
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4097,7 +4221,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &838177411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4111,16 +4235,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 838177412}
-  VelocityThreshhold: 0.03
-  IndentScale: 0.69
   MaxIndent: 0.05
-  IndentRecoveryTime: 1
+  IndentScale: 0.69
   RecoveryDelayTime: 0.05
+  IndentRecoveryTime: 1
   JellyRadius: 0.3
-  JellyRecoveryTime: 1
   JellyStrength: 0.7
-  GlobalJellyEnabled: 1
-  GlobalJellyScale: 0.005
+  JellyRecoveryTime: 1
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 1
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 1
 --- !u!23 &838177412
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5240,16 +5365,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 946497914}
-  VelocityThreshhold: 0.03
-  IndentScale: 0.69
   MaxIndent: 0.05
-  IndentRecoveryTime: 1
+  IndentScale: 0.69
   RecoveryDelayTime: 0.05
-  JellyRadius: 0.3
-  JellyRecoveryTime: 1
+  IndentRecoveryTime: 1
+  JellyRadius: 0.5
   JellyStrength: 0.7
-  GlobalJellyEnabled: 0
-  GlobalJellyScale: 0.025
+  JellyRecoveryTime: 1
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 0
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 0
 --- !u!23 &946497914
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5908,7 +6034,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1242180133
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6133,7 +6259,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1360831934
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6584,7 +6710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1435524382
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6920,7 +7046,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1468887443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6934,16 +7060,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1468887445}
-  VelocityThreshhold: 0.03
-  IndentScale: 1
   MaxIndent: 0.4
-  IndentRecoveryTime: 1.5
+  IndentScale: 1
   RecoveryDelayTime: 0.66
+  IndentRecoveryTime: 1.5
   JellyRadius: 0.2
-  JellyRecoveryTime: 0.7
   JellyStrength: 2.21
-  GlobalJellyEnabled: 0
-  GlobalJellyScale: 0.025
+  JellyRecoveryTime: 0.7
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 0
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 0
 --- !u!23 &1468887445
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7348,7 +7475,7 @@ Transform:
   m_GameObject: {fileID: 1587423635}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.656, y: 3.223, z: -4.621}
+  m_LocalPosition: {x: 0.882, y: 6.599, z: -6.65}
   m_LocalScale: {x: 1.6899999, y: 1.6899999, z: 1.6899999}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7487,7 +7614,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1590541007
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8055,16 +8182,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1657545977}
-  VelocityThreshhold: 0.03
-  IndentScale: 0.5
   MaxIndent: 0.08
-  IndentRecoveryTime: 2
+  IndentScale: 0.5
   RecoveryDelayTime: 0.2
+  IndentRecoveryTime: 2
   JellyRadius: 0.1
-  JellyRecoveryTime: 0.7
   JellyStrength: 1.1
-  GlobalJellyEnabled: 0
-  GlobalJellyScale: 0.025
+  JellyRecoveryTime: 0.7
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 0
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 0
 --- !u!1 &1677389076
 GameObject:
   m_ObjectHideFlags: 0
@@ -8421,16 +8549,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 618013611}
-  VelocityThreshhold: 0.03
-  IndentScale: 0.5
   MaxIndent: 0.08
-  IndentRecoveryTime: 2
+  IndentScale: 0.5
   RecoveryDelayTime: 0.2
+  IndentRecoveryTime: 2
   JellyRadius: 0.1
-  JellyRecoveryTime: 0.7
   JellyStrength: 1.1
-  GlobalJellyEnabled: 0
-  GlobalJellyScale: 0.025
+  JellyRecoveryTime: 0.7
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 0
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 0
 --- !u!1 &1759702912
 GameObject:
   m_ObjectHideFlags: 0
@@ -9126,16 +9255,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1110914752}
-  VelocityThreshhold: 0.03
-  IndentScale: 0.2
   MaxIndent: 0.01
-  IndentRecoveryTime: 2
+  IndentScale: 0.2
   RecoveryDelayTime: 1
+  IndentRecoveryTime: 2
   JellyRadius: 0.1
-  JellyRecoveryTime: 0.7
   JellyStrength: 1.1
-  GlobalJellyEnabled: 0
-  GlobalJellyScale: 1
+  JellyRecoveryTime: 0.7
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 0
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 0
 --- !u!1 &1893406576 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7882376022164389543, guid: 20e19c12ebea32c4abdd9405707387d3, type: 3}
@@ -9159,16 +9289,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1893406578}
-  VelocityThreshhold: 0.03
-  IndentScale: 0.5
   MaxIndent: 0.08
-  IndentRecoveryTime: 2
+  IndentScale: 0.5
   RecoveryDelayTime: 0.2
+  IndentRecoveryTime: 2
   JellyRadius: 0.1
-  JellyRecoveryTime: 0.7
   JellyStrength: 1.1
-  GlobalJellyEnabled: 0
-  GlobalJellyScale: 0.025
+  JellyRecoveryTime: 0.7
+  VelocityThreshhold: 0.03
+  FakeVolumeEnabled: 0
+  FakeVolumeScale: 0.025
+  FixDuplicateVertices: 0
 --- !u!1 &1899018586
 GameObject:
   m_ObjectHideFlags: 0
@@ -9643,7 +9774,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &2125817704
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10122,7 +10253,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1775873690990551552, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10372,6 +10503,7 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 2130982947}
   - {fileID: 1468887447}
+  - {fileID: 459420970}
   - {fileID: 946497916}
   - {fileID: 838177414}
   - {fileID: 319043127}
