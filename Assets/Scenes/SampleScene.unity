@@ -1529,7 +1529,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.45126316, y: -0, z: -0, w: 0.89239097}
-  m_LocalPosition: {x: 0.79, y: 10.63, z: -11.85}
+  m_LocalPosition: {x: 1.93, y: 4.08, z: -9.21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1911,8 +1911,8 @@ Transform:
   m_GameObject: {fileID: 345309036}
   serializedVersion: 2
   m_LocalRotation: {x: -0.3046981, y: 0, z: 0, w: 0.952449}
-  m_LocalPosition: {x: 1.967, y: 3.131, z: -8.878}
-  m_LocalScale: {x: 1.0371429, y: 0.52, z: 0.7228571}
+  m_LocalPosition: {x: 0.827, y: 8.43, z: -10.19}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2691,8 +2691,8 @@ MonoBehaviour:
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 1
-  FakeVolumeScale: 10
-  FixDuplicateVertices: 0
+  FakeVolumeScale: 1
+  FixDuplicateVertices: 1
 --- !u!23 &459420968
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5012,7 +5012,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &872149248
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -5373,9 +5373,9 @@ MonoBehaviour:
   JellyStrength: 0.7
   JellyRecoveryTime: 1
   VelocityThreshhold: 0.03
-  FakeVolumeEnabled: 0
-  FakeVolumeScale: 0.025
-  FixDuplicateVertices: 0
+  FakeVolumeEnabled: 1
+  FakeVolumeScale: 1
+  FixDuplicateVertices: 1
 --- !u!23 &946497914
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7475,7 +7475,7 @@ Transform:
   m_GameObject: {fileID: 1587423635}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.882, y: 6.599, z: -6.65}
+  m_LocalPosition: {x: 0.911, y: 6.499, z: -6.904}
   m_LocalScale: {x: 1.6899999, y: 1.6899999, z: 1.6899999}
   m_ConstrainProportionsScale: 1
   m_Children: []
