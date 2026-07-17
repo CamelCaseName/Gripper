@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,19 +57,59 @@ public class SkinDeform : MonoBehaviour
     private float[] jellyTouchTimes;
     private GraphicsBuffer vertBuffer = null;
     //todo add tooltips, min max and stuff and shit here
+    [Tooltip("Plug the objects renderer into here")]
     public Renderer renderer = null;
+
+    [Tooltip("Colliders with this Tag will be respected for collision")]
     public string colliderTag = "SkinColliders";
+
+    [Min(0)]
+    [Tooltip("This defines how deep the mesh is deformed. 1 = whole length. Can be multiple")]
     public float MaxIndent = 0.03f;
+
+    [Range(0, 1)]
+    [Tooltip("This defines how fast the mesh is deformed. 1 = instant")]
     public float IndentScale = 0.7f;
+
+    [Min(0)]
+    [Tooltip("This defines how fast the mesh is reformed in seconds. 0 = instant")]
     public float RecoveryDelayTime = 0.1f;
+
+    [Min(0)]
+    [Tooltip("This defines how long to wait until the mesh is reformed, in seconds. 0 = instant")]
     public float IndentRecoveryTime = 2f;
+
+    [Min(0)]
+    [Tooltip("This defines how much further the jelly effect is triggered. 1 = colliders size doubled.")]
     public float JellyRadius = 0.15f;
+
+    [Min(0)]
+    [Tooltip("This defines how much the jelly effect jumps up depending on the colliders speed")]
     public float JellyStrength = 1.1f;
-    public float JellyRecoveryTime = 0.7f;
+
+    [Min(0)]
+    [Tooltip("This defines how long to wait until the jelly settles. 0 = instant")]
+    public float JellyRecoveryTime = 0.5f;
+
+    [Min(0)]
+    [Tooltip("This defines how fast collider has to move in units/frame for the jelly effect to trigger. 0 = on any movement")]
     public float VelocityThreshhold = 0.03f;
+
+    [Tooltip("If this is turned on, the object expands on indentation on every untouched vertex")]
     public bool FakeVolumeEnabled = false;
+
+    [Tooltip("This sets how much the object expands on indentation on every untouched vertex. Can be negative to have it shrink on touch")]
     public float FakeVolumeScale = 0.025f;
+
+    [Tooltip("If this is turned on, the objects mesh is scanned for duplicate vertices which will then be handled the same way -> no tears")]
     public bool FixDuplicateVertices = false;
+
+    [Tooltip("If this is turned on, the ´collider also slightly drags the vertices on collision")]
+    public bool DragEnabled = false;
+
+    [Tooltip("This sets how strongly the collider drags the object")]
+    public float DragScale = 0.025f;
+
     private readonly List<Vector3> oldCollPos = new();
     private readonly List<int> collType = new();
     private readonly Vector3 zero = Vector3.zero;

@@ -1528,13 +1528,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.45126316, y: -0, z: -0, w: 0.89239097}
-  m_LocalPosition: {x: 1.93, y: 4.08, z: -9.21}
+  m_LocalRotation: {x: 0.24642536, y: -0.6405114, z: 0.23176987, w: 0.6894219}
+  m_LocalPosition: {x: 6.51, y: 6.41, z: -6.33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 53.65, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 39.545, y: -85.683, z: 0.29}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1911,7 +1911,7 @@ Transform:
   m_GameObject: {fileID: 345309036}
   serializedVersion: 2
   m_LocalRotation: {x: -0.3046981, y: 0, z: 0, w: 0.952449}
-  m_LocalPosition: {x: 0.827, y: 8.43, z: -10.19}
+  m_LocalPosition: {x: 0.827, y: 3.8, z: -8.27}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2682,6 +2682,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 459420968}
+  colliderTag: SkinColliders
   MaxIndent: 0.4
   IndentScale: 1
   RecoveryDelayTime: 0.66
@@ -2759,7 +2760,7 @@ Transform:
   m_GameObject: {fileID: 459420966}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: 1, y: 5.63, z: -6.78}
+  m_LocalPosition: {x: 0.68, y: 2.15, z: -4.39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3024,6 +3025,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 503631665}
+  colliderTag: SkinColliders
   MaxIndent: 0.03
   IndentScale: 0.7
   RecoveryDelayTime: 0.1
@@ -4235,6 +4237,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 838177412}
+  colliderTag: SkinColliders
   MaxIndent: 0.05
   IndentScale: 0.69
   RecoveryDelayTime: 0.05
@@ -5365,6 +5368,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 946497914}
+  colliderTag: SkinColliders
   MaxIndent: 0.05
   IndentScale: 0.69
   RecoveryDelayTime: 0.05
@@ -5442,7 +5446,7 @@ Transform:
   m_GameObject: {fileID: 946497912}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 2, y: 0.67, z: -7.48}
+  m_LocalPosition: {x: 0.84, y: 0.67, z: -7.48}
   m_LocalScale: {x: 79.1, y: 79.1, z: 79.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7060,6 +7064,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1468887445}
+  colliderTag: SkinColliders
   MaxIndent: 0.4
   IndentScale: 1
   RecoveryDelayTime: 0.66
@@ -7475,7 +7480,7 @@ Transform:
   m_GameObject: {fileID: 1587423635}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.911, y: 6.499, z: -6.904}
+  m_LocalPosition: {x: 0.73, y: 3.383, z: -4.36}
   m_LocalScale: {x: 1.6899999, y: 1.6899999, z: 1.6899999}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -8182,6 +8187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1657545977}
+  colliderTag: SkinColliders
   MaxIndent: 0.08
   IndentScale: 0.5
   RecoveryDelayTime: 0.2
@@ -8549,6 +8555,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 618013611}
+  colliderTag: SkinColliders
   MaxIndent: 0.08
   IndentScale: 0.5
   RecoveryDelayTime: 0.2
@@ -9255,6 +9262,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1110914752}
+  colliderTag: SkinColliders
   MaxIndent: 0.01
   IndentScale: 0.2
   RecoveryDelayTime: 1
@@ -9289,6 +9297,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkinDeform
   renderer: {fileID: 1893406578}
+  colliderTag: SkinColliders
   MaxIndent: 0.08
   IndentScale: 0.5
   RecoveryDelayTime: 0.2
