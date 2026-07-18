@@ -1911,7 +1911,7 @@ Transform:
   m_GameObject: {fileID: 345309036}
   serializedVersion: 2
   m_LocalRotation: {x: -0.3046981, y: 0, z: 0, w: 0.952449}
-  m_LocalPosition: {x: 0.827, y: 3.8, z: -8.27}
+  m_LocalPosition: {x: 0.827, y: 4.24, z: -9.66}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2684,16 +2684,19 @@ MonoBehaviour:
   renderer: {fileID: 459420968}
   colliderTag: SkinColliders
   MaxIndent: 0.4
-  IndentScale: 1
+  IndentScale: 0.439
   RecoveryDelayTime: 0.66
   IndentRecoveryTime: 1.2
-  JellyRadius: 0.2
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 2.21
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 1
   FakeVolumeScale: 1
   FixDuplicateVertices: 1
+  DragEnabled: 1
+  DragScale: 1.12
 --- !u!23 &459420968
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3030,13 +3033,16 @@ MonoBehaviour:
   IndentScale: 0.7
   RecoveryDelayTime: 0.1
   IndentRecoveryTime: 2
-  JellyRadius: 0.15
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 0
   FakeVolumeScale: 0.025
   FixDuplicateVertices: 0
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!136 &503631664
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4242,13 +4248,16 @@ MonoBehaviour:
   IndentScale: 0.69
   RecoveryDelayTime: 0.05
   IndentRecoveryTime: 1
-  JellyRadius: 0.3
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 0.7
   JellyRecoveryTime: 1
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 1
   FakeVolumeScale: 0.025
   FixDuplicateVertices: 1
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!23 &838177412
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5373,13 +5382,16 @@ MonoBehaviour:
   IndentScale: 0.69
   RecoveryDelayTime: 0.05
   IndentRecoveryTime: 1
-  JellyRadius: 0.5
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 0.7
   JellyRecoveryTime: 1
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 1
   FakeVolumeScale: 1
   FixDuplicateVertices: 1
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!23 &946497914
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7069,13 +7081,16 @@ MonoBehaviour:
   IndentScale: 1
   RecoveryDelayTime: 0.66
   IndentRecoveryTime: 1.5
-  JellyRadius: 0.2
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 2.21
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 0
   FakeVolumeScale: 0.025
   FixDuplicateVertices: 0
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!23 &1468887445
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7480,7 +7495,7 @@ Transform:
   m_GameObject: {fileID: 1587423635}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.73, y: 3.383, z: -4.36}
+  m_LocalPosition: {x: 0.73, y: 3.527, z: -4.36}
   m_LocalScale: {x: 1.6899999, y: 1.6899999, z: 1.6899999}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -8192,13 +8207,16 @@ MonoBehaviour:
   IndentScale: 0.5
   RecoveryDelayTime: 0.2
   IndentRecoveryTime: 2
-  JellyRadius: 0.1
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 0
   FakeVolumeScale: 0.025
   FixDuplicateVertices: 0
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!1 &1677389076
 GameObject:
   m_ObjectHideFlags: 0
@@ -8560,13 +8578,16 @@ MonoBehaviour:
   IndentScale: 0.5
   RecoveryDelayTime: 0.2
   IndentRecoveryTime: 2
-  JellyRadius: 0.1
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 0
   FakeVolumeScale: 0.025
   FixDuplicateVertices: 0
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!1 &1759702912
 GameObject:
   m_ObjectHideFlags: 0
@@ -9267,13 +9288,16 @@ MonoBehaviour:
   IndentScale: 0.2
   RecoveryDelayTime: 1
   IndentRecoveryTime: 2
-  JellyRadius: 0.1
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 0
   FakeVolumeScale: 0.025
   FixDuplicateVertices: 0
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!1 &1893406576 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7882376022164389543, guid: 20e19c12ebea32c4abdd9405707387d3, type: 3}
@@ -9302,13 +9326,16 @@ MonoBehaviour:
   IndentScale: 0.5
   RecoveryDelayTime: 0.2
   IndentRecoveryTime: 2
-  JellyRadius: 0.1
+  EffectRadius: 0.15
+  JellyEnabled: 0
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
   FakeVolumeEnabled: 0
   FakeVolumeScale: 0.025
   FixDuplicateVertices: 0
+  DragEnabled: 0
+  DragScale: 0.025
 --- !u!1 &1899018586
 GameObject:
   m_ObjectHideFlags: 0
