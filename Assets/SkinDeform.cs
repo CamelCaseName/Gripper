@@ -1,4 +1,3 @@
-using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,10 +8,38 @@ using UnityEngine;
 
 public class SkinDeform : MonoBehaviour
 {
+    //todo add option to preprocess meshcollider mesh for non-convex meshes to check the thickness behind each vertex -> max depth
+    //todo preprocess meshcollider mesh to find all nearby vertices and store
+    //them in a list so we can calculate the sphere size needed to be close enough to the vertex
+    private bool isSkinned = false;
+    private bool prevsetAnyVertex = false;
     private const float jellyBuildup = 0.05f;
-    private readonly List<Collider> colliders = new();
-    private MeshFilter filter = null;
+    private ExampleVertex[] verticesF;
+    private float changePerVert = 0;
+    private float dragscale = 0;
+    private float[] jellyTouchTimes;
+    private float[] touchtimes;
+    private GraphicsBuffer vertBuffer = null;
+    private int dupeVertCount = 0;
+    private int touchCount = 0;
+    private int[,] identicalVerts;
     private Mesh _mesh;
+    private MeshFilter filter = null;
+    private readonly bool isAvxSupported = X86.Avx.IsAvxSupported;
+    private readonly bool isSSE2Supported = X86.Sse2.IsSse2Supported;
+    private readonly float[] differences = new float[6];
+    private readonly List<Collider> colliders = new();
+    private readonly List<int> collType = new();
+    private readonly List<Vector3> normals = new();
+    private readonly List<Vector3> oldCollPos = new();
+    private readonly List<Vector3> vertices = new();
+    private readonly Vector3 zero = Vector3.zero;
+    private Vector3 totalTouchValue = Vector3.zero;
+    private Vector3[] fakeVolumeVertexOffsets;
+    private Vector3[] jellyVertexOffsets;
+    private Vector3[] oldNormals;
+    private Vector3[] oldVertices;
+    private Vector3[] vertexOffsets;
     private Mesh Mesh
     {
         get
@@ -27,7 +54,9 @@ public class SkinDeform : MonoBehaviour
                 {
                     if (filter == null)
                     {
+#pragma warning disable UNT0039 // Use RequireComponent attribute when self-invoking GetComponent
                         filter = GetComponent<MeshFilter>();
+#pragma warning restore UNT0039 // Use RequireComponent attribute when self-invoking GetComponent
                     }
                     _mesh = filter.sharedMesh;
                 }
@@ -36,26 +65,8 @@ public class SkinDeform : MonoBehaviour
             throw new InvalidDataException("no MeshRenderer or SkinnedMeshRenderer present on the object");
         }
     }
-    private bool isSkinned = false;
-    private Vector3[] oldVertices;
-    private int[,] identicalVerts;
-    private Vector3[] oldNormals;
-    //todo for gpu: use vertex shader and keep offsets and stuff on gopu, only supply collider data each frame
 
-    //todo add option to preprocess meshcollider mesh for non-convex meshes to check the thickness behind each vertex -> max depth
-
-    //todo add option to preprocess meshcollider mesh to find all nearby vertices and store
-    //them in a list so we can calculate the sphere size needed to be close enough to the vertex
-    private Vector3[] vertexOffsets;
-    private Vector3[] fakeVolumeVertexOffsets;
-    private Vector3[] jellyVertexOffsets;
-    private readonly List<Vector3> vertices = new();
-    private readonly List<Vector3> normals = new();
-    private ExampleVertex[] verticesF;
-    private float[] touchtimes;
-    private float[] jellyTouchTimes;
-    private GraphicsBuffer vertBuffer = null;
-    //todo add tooltips, min max and stuff and shit here
+    #region properties
     [Tooltip("Plug the objects renderer into here")]
     public Renderer renderer = null;
 
@@ -76,7 +87,7 @@ public class SkinDeform : MonoBehaviour
 
     [Min(0)]
     [Tooltip("This defines how long to wait until the mesh is reformed, in seconds. 0 = instant")]
-    public float IndentRecoveryTime = 2f;
+    public float IndentRecoveryTime = 0.7f;
 
     [Min(0)]
     [Tooltip("This defines how much further the jelly effect or dragging is triggered. 1 = colliders size doubled. 0 = turned off.")]
@@ -101,33 +112,54 @@ public class SkinDeform : MonoBehaviour
     public bool FakeVolumeEnabled = false;
 
     [Tooltip("This sets how much the object expands on indentation on every untouched vertex. Can be negative to have it shrink on touch")]
-    public float FakeVolumeScale = 0.025f;
+    public float FakeVolumeScale = 1f;
 
     [Tooltip("If this is turned on, the objects mesh is scanned for duplicate vertices which will then be handled the same way -> no tears")]
     public bool FixDuplicateVertices = false;
 
     [Tooltip("If this is turned on, the ´collider also slightly drags the vertices on collision")]
-    public bool DragEnabled = false;
+    public bool DragEnabled = true;
 
+    [Min(0)]
     [Tooltip("This sets how strongly the collider drags the object")]
-    public float DragScale = 0.025f;
+    public float DragScale = 1f;
+    #endregion properties
 
-    private readonly List<Vector3> oldCollPos = new();
-    private float dragscale = 0;
-    private readonly List<int> collType = new();
-    private readonly Vector3 zero = Vector3.zero;
-    private bool prevsetAnyVertex = false;
-    private float changePerVert = 0;
-    private int touchCount = 0;
-    private Vector3 totalTouchValue = Vector3.zero;
-    private int dupeVertCount = 0;
-    private readonly float[] differences = new float[6];
-    private readonly bool isSSE2Supported = X86.Sse2.IsSse2Supported;
-    private readonly bool isAvxSupported = X86.Avx.IsAvxSupported;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // register active colliders here
     private void Awake()
     {
+        UpdateColliders();
+
+        if (renderer is SkinnedMeshRenderer)
+        {
+            isSkinned = true;
+        }
+
+        GetVertices();
+
+        int count = vertices.Count;
+        oldVertices = new Vector3[count];
+        oldNormals = new Vector3[count];
+        //touchNormals = new Vector3[vertices.Count];
+        vertices.CopyTo(oldVertices, 0);
+        normals.CopyTo(oldNormals, 0);
+        vertexOffsets = new Vector3[count];
+        jellyVertexOffsets = new Vector3[count];
+        fakeVolumeVertexOffsets = new Vector3[count];
+        touchtimes = new float[count];
+        jellyTouchTimes = new float[count];
+        if (!FixDuplicateVertices || isSkinned)
+        {
+            return;
+        }
+        SetUpMeshFixes();
+    }
+
+    public void UpdateColliders()
+    {
+        colliders.Clear();
+        collType.Clear();
+        oldCollPos.Clear();
         foreach (var go in GameObject.FindGameObjectsWithTag(colliderTag))
         {
             if (go.TryGetComponent<SphereCollider>(out var coll))
@@ -148,28 +180,13 @@ public class SkinDeform : MonoBehaviour
                 collType.Add(2);
                 oldCollPos.Add(m.transform.position);
             }
+            if (go.TryGetComponent<CapsuleCollider>(out var c))
+            {
+                colliders.Add(c);
+                collType.Add(3);
+                oldCollPos.Add(m.transform.position);
+            }
         }
-        if (renderer is SkinnedMeshRenderer srender)
-        {
-            isSkinned = true;
-        }
-        GetVertices();
-        int count = vertices.Count;
-        oldVertices = new Vector3[count];
-        oldNormals = new Vector3[count];
-        //touchNormals = new Vector3[vertices.Count];
-        vertices.CopyTo(oldVertices, 0);
-        normals.CopyTo(oldNormals, 0);
-        vertexOffsets = new Vector3[count];
-        jellyVertexOffsets = new Vector3[count];
-        fakeVolumeVertexOffsets = new Vector3[count];
-        touchtimes = new float[count];
-        jellyTouchTimes = new float[count];
-        if (!FixDuplicateVertices || isSkinned)
-        {
-            return;
-        }
-        SetUpMeshFixes();
     }
 
     private void SetUpMeshFixes()
@@ -206,6 +223,7 @@ public class SkinDeform : MonoBehaviour
         }
     }
 
+    //todo for gpu: use vertex shader and keep offsets and stuff on gopu, only supply collider data each frame
     //todo change to computeshader on toggle so the user can choose between CPU and GPU load
     private void Update()
     {
@@ -391,6 +409,11 @@ public class SkinDeform : MonoBehaviour
                 //    //    vertexJellyTouched[i] = true;
                 //    //    setAnyVertex = true;
                 //    //}
+            }
+            //todo add support for capsule colliders
+            else if (coltype == 3)
+            {
+
             }
             oldCollPos[c] = coll.transform.position;
         }
@@ -845,7 +868,6 @@ public class SkinDeform : MonoBehaviour
                 }
             }
 
-            //todo fix for cubes, touchcount is fucked somehow
             if (touchCount != 0)
             {
                 if (FixDuplicateVertices)
