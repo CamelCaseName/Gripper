@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -184,7 +185,7 @@ public class SkinDeform : MonoBehaviour
             {
                 colliders.Add(c);
                 collType.Add(3);
-                oldCollPos.Add(m.transform.position);
+                oldCollPos.Add(c.transform.position);
             }
         }
     }
@@ -413,7 +414,7 @@ public class SkinDeform : MonoBehaviour
             //todo add support for capsule colliders
             else if (coltype == 3)
             {
-
+                HandleCapsuleColl(ref setAnyVertex, coll, collT, velVec, vel, transformedColl);
             }
             oldCollPos[c] = coll.transform.position;
         }
@@ -479,7 +480,6 @@ public class SkinDeform : MonoBehaviour
                 {
                     vertexOffsets[i] -= move;
                 }
-                //fakeVolumeVertexOffsets[i] = zero;
                 touchtimes[i] = currentTime;
                 return true;
             }
@@ -517,7 +517,7 @@ public class SkinDeform : MonoBehaviour
                 {
                     continue;
                 }
-                if (vertexOffsets[i].sqrMagnitude >= smaxIdent || EffectRadius != 0 && jellyVertexOffsets[i].sqrMagnitude >= smaxIdent)
+                if (vertexOffsets[i].sqrMagnitude >= smaxIdent || (EffectRadius != 0 && jellyVertexOffsets[i].sqrMagnitude >= smaxIdent))
                 {
                     touchtimes[i] = currentTime;
                     continue;
@@ -536,7 +536,6 @@ public class SkinDeform : MonoBehaviour
                     {
                         vertexOffsets[i] += move;
                     }
-                    //fakeVolumeVertexOffsets[i] = zero;
                     touchtimes[i] = currentTime;
                     setAnyVertex = true;
                 }
@@ -563,7 +562,6 @@ public class SkinDeform : MonoBehaviour
                         {
                             vertexOffsets[i] += move;
                         }
-                        //fakeVolumeVertexOffsets[i] = zero;
                         touchtimes[i] = currentTime;
                         setAnyVertex = true;
                     }
@@ -649,7 +647,7 @@ public class SkinDeform : MonoBehaviour
                 {
                     continue;
                 }
-                if (vertexOffsets[i].sqrMagnitude >= smaxIdent || EffectRadius != 0 && jellyVertexOffsets[i].sqrMagnitude >= smaxIdent)
+                if (vertexOffsets[i].sqrMagnitude >= smaxIdent || (EffectRadius != 0 && jellyVertexOffsets[i].sqrMagnitude >= smaxIdent))
                 {
                     continue;
                 }
@@ -782,7 +780,6 @@ public class SkinDeform : MonoBehaviour
                         {
                             vertexOffsets[i] += move;
                         }
-                        //fakeVolumeVertexOffsets[i] = zero;
                         touchtimes[i] = currentTime;
                         setAnyVertex = true;
                     }
@@ -903,6 +900,157 @@ public class SkinDeform : MonoBehaviour
                     fakeVolumeVertexOffsets[i] = zero;
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool HandleCapsuleColl(ref bool setAnyVertex, Collider coll, Transform collT, Vector3 velVec, float vel, Vector3 transformedColl)
+        {
+            CapsuleCollider capcoll = ((CapsuleCollider)coll);
+            Vector3 localScale = collT.localScale;
+            float height;
+            float radius;
+            Vector3 capsuleHeightDir;
+            switch (capcoll.direction)
+            {
+                //todo radius has to be scaled correctly according to mesh scale, probably the same issue as with the cube collider
+                case 0:
+                    height = ((capcoll.height / 2) * localScale.x / tlocalScale.x);
+                    capsuleHeightDir = t.InverseTransformDirection(collT.right * height); // x
+                    radius = capcoll.radius * ((localScale.y / tlocalScale.y + localScale.z / tlocalScale.z) / 2);
+                    break;
+                case 1:
+                    height = ((capcoll.height / 2) * localScale.y / tlocalScale.y);
+                    capsuleHeightDir = t.InverseTransformDirection(collT.up * height); // y
+                    radius = capcoll.radius * ((localScale.x / tlocalScale.x + localScale.z / tlocalScale.z) / 2);
+                    break;
+                case 2:
+                    height = ((capcoll.height / 2) * localScale.z / tlocalScale.z);
+                    capsuleHeightDir = t.InverseTransformDirection(collT.forward * height); // z
+                    radius = capcoll.radius * ((localScale.x / tlocalScale.x + localScale.y / tlocalScale.y) / 2);
+                    break;
+                default:
+                    return false;
+            }
+            Vector3 capsuleHeightDirN = capsuleHeightDir.normalized;
+            //get bounds into local space
+            var tbounds = t.InverseTransformDirection(coll.bounds.extents * (1 + EffectRadius));
+            var checksizeX = Mathf.Abs(tbounds.x / tlocalScale.x);
+            var checksizeY = Mathf.Abs(tbounds.y / tlocalScale.y);
+            var checksizeZ = Mathf.Abs(tbounds.z / tlocalScale.z);
+            var cylHeight = height - radius;
+            height *= (1 + EffectRadius);
+            var checkRadius = radius * (1 + EffectRadius);
+            var cylHeightVec = cylHeight * capsuleHeightDirN;
+            var negCylHeightVec = -cylHeightVec;
+
+            var count = vertices.Count;
+            for (int i = 0; i < count; i++)
+            {
+                if (ShouldSkipVert(i))
+                {
+                    continue;
+                }
+
+                var vert = vertices[i] - transformedColl;
+                if (vert.x > checksizeX || vert.x < -checksizeX)
+                {
+                    continue;
+                }
+                if (vert.y > checksizeY || vert.y < -checksizeY)
+                {
+                    continue;
+                }
+                if (vert.z > checksizeZ || vert.z < -checksizeZ)
+                {
+                    continue;
+                }
+                if (vertexOffsets[i].sqrMagnitude >= smaxIdent || (EffectRadius != 0 && jellyVertexOffsets[i].sqrMagnitude >= smaxIdent))
+                {
+                    touchtimes[i] = currentTime;
+                    continue;
+                }
+
+                float heightProj = Vector3.Dot(vert, capsuleHeightDirN);
+                //inside collider height
+                if (heightProj <= height && heightProj >= -height)
+                {
+                    float dist;
+                    if (cylHeight >= 0)
+                    {
+                        if (heightProj <= cylHeight && heightProj >= -cylHeight)
+                        {
+                            //were inside the cylinder part of the capsule
+                            //check if dist to vert alongisde vec orthogonal to height is smaller than radius
+                            //the mult is the closest point to vert on the height vector
+                            dist = (vert - (heightProj * capsuleHeightDirN)).magnitude;
+                        }
+                        //were inside the half sphere part of the capsule,
+                        //check what half, then calculate the dist and has to be smaller than radius
+                        else
+                        {
+                            if (heightProj >= 0)
+                            {
+                                dist = (vert - cylHeightVec).magnitude;
+                            }
+                            else
+                            {
+                                dist = (vert - negCylHeightVec).magnitude;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //we have no cylinder part, just check if were in the sphere
+                        dist = vert.magnitude;
+                    }
+                    if (dist < radius)
+                    {
+                        float scale = ((radius - dist) / radius) * sindentscale;
+                        var move = ((vert * scale) + (velVec * dragscale));
+                        if (isSkinned)
+                        {
+                            vertexOffsets[i] += Quaternion.FromToRotation(normals[i], oldNormals[i]) * move;
+                        }
+                        else
+                        {
+                            vertexOffsets[i] += move;
+                        }
+                        touchtimes[i] = currentTime;
+                        setAnyVertex = true;
+                    }
+                    else if (EffectRadius > 0
+                    && dist > radius
+                    && dist < checkRadius)
+                    {
+                        if (JellyEnabled
+                            && vertexOffsets[i] == zero
+                            && vel > VelocityThreshhold)
+                        {
+                            jellyVertexOffsets[i] = normals[i] * (-1 * (dist - checkRadius) * (sindentscale * sjellystrength * (1 + vel)));
+                            jellyTouchTimes[i] = currentTime;
+                            setAnyVertex = true;
+                        }
+                        else if (DragEnabled)
+                        {
+                            var move = (velVec * (dragscale * ((checkRadius - dist) / (checkRadius - radius))));
+                            if (isSkinned)
+                            {
+                                vertexOffsets[i] += Quaternion.FromToRotation(normals[i], oldNormals[i]) * move;
+                            }
+                            else
+                            {
+                                vertexOffsets[i] += move;
+                            }
+                            //fakeVolumeVertexOffsets[i] = zero;
+                            touchtimes[i] = currentTime;
+                            setAnyVertex = true;
+                        }
+                    }
+                }
+
+            }
+
+            return true;
         }
     }
 
