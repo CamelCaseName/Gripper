@@ -291,7 +291,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 20e19c12ebea32c4abdd9405707387d3, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 20e19c12ebea32c4abdd9405707387d3, type: 3}
       propertyPath: m_Controller
@@ -2288,7 +2288,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &431536343
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2376,7 +2376,7 @@ Transform:
   m_GameObject: {fileID: 431536342}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.979, y: 1.758, z: 2.42}
+  m_LocalPosition: {x: 1.76, y: 5.064, z: 3.346}
   m_LocalScale: {x: 1.6899999, y: 1.6899999, z: 1.6899999}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -6275,7 +6275,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1360831934
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8212,10 +8212,10 @@ MonoBehaviour:
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
-  FakeVolumeEnabled: 0
+  FakeVolumeEnabled: 1
   FakeVolumeScale: 0.025
-  FixDuplicateVertices: 0
-  DragEnabled: 0
+  FixDuplicateVertices: 1
+  DragEnabled: 1
   DragScale: 0.025
 --- !u!1 &1677389076
 GameObject:
@@ -9293,10 +9293,10 @@ MonoBehaviour:
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
-  FakeVolumeEnabled: 0
+  FakeVolumeEnabled: 1
   FakeVolumeScale: 0.025
-  FixDuplicateVertices: 0
-  DragEnabled: 0
+  FixDuplicateVertices: 1
+  DragEnabled: 1
   DragScale: 0.025
 --- !u!1 &1893406576 stripped
 GameObject:
@@ -9331,10 +9331,10 @@ MonoBehaviour:
   JellyStrength: 1.1
   JellyRecoveryTime: 0.7
   VelocityThreshhold: 0.03
-  FakeVolumeEnabled: 0
+  FakeVolumeEnabled: 1
   FakeVolumeScale: 0.025
-  FixDuplicateVertices: 0
-  DragEnabled: 0
+  FixDuplicateVertices: 1
+  DragEnabled: 1
   DragScale: 0.025
 --- !u!1 &1899018586
 GameObject:
@@ -10289,7 +10289,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1775873690990551552, guid: 0f81b8075229fb04ea57f6c23c699905, type: 3}
       propertyPath: m_LocalPosition.x

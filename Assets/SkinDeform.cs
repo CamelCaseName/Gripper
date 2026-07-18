@@ -154,17 +154,18 @@ public class SkinDeform : MonoBehaviour
             isSkinned = true;
         }
         GetVertices();
-        oldVertices = new Vector3[vertices.Count];
-        oldNormals = new Vector3[vertices.Count];
+        int count = vertices.Count;
+        oldVertices = new Vector3[count];
+        oldNormals = new Vector3[count];
         //touchNormals = new Vector3[vertices.Count];
         vertices.CopyTo(oldVertices, 0);
         normals.CopyTo(oldNormals, 0);
-        vertexOffsets = new Vector3[vertices.Count];
-        jellyVertexOffsets = new Vector3[vertices.Count];
-        fakeVolumeVertexOffsets = new Vector3[vertices.Count];
-        touchtimes = new float[vertices.Count];
-        jellyTouchTimes = new float[vertices.Count];
-        if (!FixDuplicateVertices)
+        vertexOffsets = new Vector3[count];
+        jellyVertexOffsets = new Vector3[count];
+        fakeVolumeVertexOffsets = new Vector3[count];
+        touchtimes = new float[count];
+        jellyTouchTimes = new float[count];
+        if (!FixDuplicateVertices || isSkinned)
         {
             return;
         }
@@ -1067,6 +1068,12 @@ public class SkinDeform : MonoBehaviour
                     fakeVolumeVertexOffsets = new Vector3[count];
                     jellyVertexOffsets = new Vector3[count];
                     touchtimes = new float[count];
+                    jellyTouchTimes = new float[count];
+                    if (!FixDuplicateVertices)
+                    {
+                        return;
+                    }
+                    SetUpMeshFixes();
                 }
                 else
                 {
